@@ -1,38 +1,28 @@
 using UnityEngine;
 
-public class StatisticsHandler : MonoBehaviour
+public abstract class StatisticsHandler<T> : MonoBehaviour
+    where T : MonoBehaviour, IPoolable<T>
 {
-    [SerializeField] private CubeSpawner _cubeSpawner;
-    [SerializeField] private BombSpawner _bombSpawner;
+    [SerializeField] private Spawner<T> _spawner;
 
-    [SerializeField] private StatisticsView _cubeStatisticsView;
-    [SerializeField] private StatisticsView _bombStatisticsView;
-
+    [SerializeField] private StatisticsView _statisticsView;
 
     private void OnEnable()
     {
-        _cubeSpawner.StatisticsChanged += UpdateCubeValues;
-        _bombSpawner.StatisticsChanged += UpdateBombValues;
+        _spawner.StatisticsChanged += UpdateValues;
     }
 
     private void OnDisable()
     {
-        _cubeSpawner.StatisticsChanged -= UpdateCubeValues;
-        _bombSpawner.StatisticsChanged -= UpdateBombValues;
+        _spawner.StatisticsChanged -= UpdateValues;
     }
     private void Start()
     {
-        _cubeStatisticsView.SetStatistics(_cubeSpawner.CreatedCount, _cubeSpawner.SpawnedCount, _cubeSpawner.ActiveCount);
-        _bombStatisticsView.SetStatistics(_cubeSpawner.CreatedCount, _cubeSpawner.SpawnedCount, _cubeSpawner.ActiveCount);      
+        _statisticsView.SetStatistics(_spawner.CreatedCount, _spawner.SpawnedCount, _spawner.ActiveCount);    
     }
 
-    private void UpdateBombValues(int createdCount, int spawnedCount, int activeCount)
+    private void UpdateValues(int createdCount, int spawnedCount, int activeCount)
     {
-        _bombStatisticsView.SetStatistics(createdCount, spawnedCount, activeCount);
-    }
-
-    private void UpdateCubeValues(int createdCount, int spawnedCount, int activeCount)
-    {
-        _cubeStatisticsView.SetStatistics(createdCount, spawnedCount, activeCount);
+        _statisticsView.SetStatistics(createdCount, spawnedCount, activeCount);
     }
 }

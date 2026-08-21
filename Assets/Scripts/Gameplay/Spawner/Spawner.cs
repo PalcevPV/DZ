@@ -9,14 +9,11 @@ public abstract class Spawner<T> : MonoBehaviour
     [SerializeField] private int _poolCapacity = 5;
     [SerializeField] private int _poolMaxSize = 5;
     private ObjectPool<T> _pool;
-    private int _spawnedCount;
-    private int _createdCount = 0;
+
     public Action<int, int, int> StatisticsChanged;
-
-    public int CreatedCount => _createdCount;
-    public int SpawnedCount => _spawnedCount;
+    public int SpawnedCount { get; private set; }
+    public int CreatedCount { get; private set; }
     public int ActiveCount => _pool.CountActive;
-
 
     private void Awake()
     {
@@ -32,7 +29,7 @@ public abstract class Spawner<T> : MonoBehaviour
 
     private void ActionOnGet(T spawnItem)
     {
-        spawnItem.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+        spawnItem.ResetObject();
         spawnItem.gameObject.SetActive(true);
     }
 
@@ -46,7 +43,7 @@ public abstract class Spawner<T> : MonoBehaviour
 
     private T CreateItem()
     {
-        _createdCount++;
+        CreatedCount++;
         NotifayStatiticsChanged();
 
         return Instantiate(_prefab);
@@ -54,14 +51,14 @@ public abstract class Spawner<T> : MonoBehaviour
 
     private void NotifayStatiticsChanged()
     {
-        StatisticsChanged?.Invoke(_createdCount, _spawnedCount, _pool.CountActive);
+        StatisticsChanged?.Invoke(CreatedCount, SpawnedCount, _pool.CountActive);
     }
 
     protected T Spawn(Vector3 position)
     {
         T spawnItem = _pool.Get();
 
-        _spawnedCount++;
+        SpawnedCount++;
 
         spawnItem.transform.position = position;
         spawnItem.TimeOut += ReturnItem;

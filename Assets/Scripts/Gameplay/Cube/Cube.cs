@@ -1,10 +1,11 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(Countdown))]
+[RequireComponent(typeof(Countdown), typeof(Rigidbody))]
 public class Cube : MonoBehaviour, IPoolable<Cube>
 {
     [SerializeField] private Renderer _renderer;
+    private Rigidbody _rigidbody;
     private CubeColorChanger _cubeColorChanger = new CubeColorChanger();
     private Countdown _countdown;
 
@@ -19,6 +20,7 @@ public class Cube : MonoBehaviour, IPoolable<Cube>
     private void Awake()
     {
         _countdown = GetComponent<Countdown>();
+        _rigidbody = GetComponent<Rigidbody>();
     }
 
     private void OnEnable()
@@ -46,14 +48,20 @@ public class Cube : MonoBehaviour, IPoolable<Cube>
         }
     }
 
+    public float InitializedLifeTime()
+    {
+        return UnityEngine.Random.Range(_minLifeTime, _maxLifeTime);
+    }
+
+    public void ResetObject()
+    {
+        _rigidbody.linearVelocity = Vector3.zero;
+        _rigidbody.angularVelocity = Vector3.zero;
+    }
+
     private void Counter()
     {
         gameObject.SetActive(false);
         TimeOut?.Invoke(this);
-    }
-
-    public float InitializedLifeTime()
-    {
-        return UnityEngine.Random.Range(_minLifeTime, _maxLifeTime);
     }
 }
